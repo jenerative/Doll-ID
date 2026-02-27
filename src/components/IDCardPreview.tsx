@@ -217,13 +217,31 @@ export const IDCardPreview: React.FC<IDCardPreviewProps> = ({ data, cardRef, iq,
       <div 
         ref={cardRef}
         className="relative w-[450px] h-[280px] rounded-[2rem] overflow-hidden border border-rose-100 shadow-2xl font-sans text-xs tracking-wide"
+        style={{ backgroundColor: '#FFF9F5' }}
       >
         {/* Background Elements */}
-        <div className="absolute inset-0 card-bloom" />
+        <div 
+          className="absolute inset-0" 
+          style={{ 
+            background: 'linear-gradient(135deg, #FFF9F5 0%, #FFF0F5 100%)' 
+          }} 
+        />
         <div className="absolute inset-0 opacity-30 pointer-events-none">
-          <div className="absolute -top-20 -left-20 w-64 h-64 bg-orange-100 rounded-full blur-3xl" />
-          <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-pink-100 rounded-full blur-3xl" />
-          <div className="absolute inset-0 bg-[radial-gradient(#FBCFE8_1px,transparent_1px)] bg-[size:24px_24px] opacity-20" />
+          <div 
+            className="absolute -top-20 -left-20 w-64 h-64 bg-orange-100 rounded-full" 
+            style={{ filter: 'blur(60px)' }}
+          />
+          <div 
+            className="absolute -bottom-20 -right-20 w-64 h-64 bg-pink-100 rounded-full" 
+            style={{ filter: 'blur(60px)' }}
+          />
+          <div 
+            className="absolute inset-0 opacity-20" 
+            style={{ 
+              backgroundImage: 'radial-gradient(#FBCFE8 1px, transparent 1px)',
+              backgroundSize: '24px 24px'
+            }}
+          />
         </div>
 
         {/* Header */}

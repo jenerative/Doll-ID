@@ -174,7 +174,7 @@ export default function App() {
 
       {/* Footer */}
       <footer className="h-14 border-t border-rose-100 bg-white/60 flex items-center px-8 justify-between text-[10px] text-stone-400 font-sans font-bold uppercase tracking-widest">
-        <span>&copy; 2026 Miso Soup Club // All Rights Reserved</span>
+        <span>&copy; 2026 <a href="https://misosoup.club" target="_blank" rel="noopener noreferrer" className="hover:text-rose-400 transition-colors">Miso Soup Club</a> // All Rights Reserved</span>
         <div className="flex gap-8">
           <span>Dolls Documented: 69,420</span>
           <span>Disclaimer: No information shared here is stored.</span>
