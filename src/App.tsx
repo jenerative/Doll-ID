@@ -1,10 +1,12 @@
-import React, { useState, useRef } from 'react';
-import { Download, RefreshCw, ShieldCheck, Sparkles, Info, Star } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Download, RefreshCw, ShieldCheck, Sparkles, Info, Star, Save, Upload, FileJson } from 'lucide-react';
 import { toPng } from 'html-to-image';
 import { IDCardPreview } from './components/IDCardPreview';
 import { IDForm } from './components/IDForm';
 import { IDCardData, INITIAL_DATA } from './types';
 import { cn } from './lib/utils';
+
+const STORAGE_KEY = 'doll_id_data';
 
 export default function App() {
   const [data, setData] = useState<IDCardData>(INITIAL_DATA);
@@ -14,6 +16,27 @@ export default function App() {
   const [side, setSide] = useState<'front' | 'back'>('front');
   const changeCounter = useRef(0);
   const cardRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Load from local storage on mount
+  useEffect(() => {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        setData(parsed.data || INITIAL_DATA);
+        setIq(parsed.iq || 75);
+        setVibe(parsed.vibe || 'Good Girl');
+      } catch (e) {
+        console.error('Failed to load saved data', e);
+      }
+    }
+  }, []);
+
+  // Auto-save to local storage
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ data, iq, vibe }));
+  }, [data, iq, vibe]);
 
   const vibes = ['Dumb', 'Ditzy', 'Subby', 'Horny', 'Stupid', 'Flirty', 'Bimbo', 'Slutty', 'Good Girl'];
 
@@ -61,11 +84,53 @@ export default function App() {
       setVibe('Good Girl');
       setSide('front');
       changeCounter.current = 0;
+      localStorage.removeItem(STORAGE_KEY);
     }
+  };
+
+  const handleSaveConfig = () => {
+    const config = JSON.stringify({ data, iq, vibe }, null, 2);
+    const blob = new Blob([config], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `doll-profile-${data.fullName.toLowerCase().replace(/\s+/g, '-')}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleImportConfig = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const parsed = JSON.parse(event.target?.result as string);
+        if (parsed.data) {
+          setData(parsed.data);
+          setIq(parsed.iq || 75);
+          setVibe(parsed.vibe || 'Good Girl');
+          alert('Profile imported successfully!');
+        }
+      } catch (err) {
+        alert('Invalid profile file.');
+      }
+    };
+    reader.readAsText(file);
+    // Reset input
+    e.target.value = '';
   };
 
   return (
     <div className="min-h-screen flex flex-col bg-[#FAF7F2] text-stone-800">
+      <input 
+        type="file" 
+        ref={fileInputRef} 
+        onChange={handleImportConfig} 
+        accept=".json" 
+        className="hidden" 
+      />
       {/* Navigation / Header */}
       <header className="h-16 border-b border-rose-100 bg-white/60 backdrop-blur-md flex items-center px-8 justify-between sticky top-0 z-50">
         <div className="flex items-center gap-3">
@@ -78,6 +143,25 @@ export default function App() {
         </div>
         
         <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 border-r border-rose-100 pr-4 mr-2">
+            <button 
+              onClick={handleSaveConfig}
+              className="p-2 text-stone-400 hover:text-rose-400 transition-colors flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest"
+              title="Save Profile to File"
+            >
+              <FileJson className="w-4 h-4" />
+              <span className="hidden sm:inline">Save Profile</span>
+            </button>
+            <button 
+              onClick={() => fileInputRef.current?.click()}
+              className="p-2 text-stone-400 hover:text-rose-400 transition-colors flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest"
+              title="Import Profile from File"
+            >
+              <Upload className="w-4 h-4" />
+              <span className="hidden sm:inline">Import</span>
+            </button>
+          </div>
+          
           <button 
             onClick={handleReset}
             className="p-2 text-stone-400 hover:text-rose-400 transition-colors"
